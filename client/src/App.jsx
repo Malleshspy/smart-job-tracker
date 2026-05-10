@@ -24,7 +24,7 @@ function App() {
 
   const fetchApplications = async () => {
     try {
-      const res = await axios.get('https://your-backend.onrender.com');
+      const res = await axios.get('https://smart-job-tracker-w66c.onrender.com');
       setApplications(res.data);
     } catch (err) {
       console.error('Error fetching data', err);

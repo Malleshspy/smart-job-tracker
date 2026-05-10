@@ -17,7 +17,7 @@ function AuthScreen() {
     setError('');
     try {
       const endpoint = isLoginView ? '/api/auth/login' : '/api/auth/register';
-      const res = await axios.post(`https://your-backend.onrender.com'${endpoint}`, formData);
+      const res = await axios.post(`https://smart-job-tracker-w66c.onrender.com${endpoint}`, formData);
       
       // Call the login function from our context with the data from the server
       login(res.data.user, res.data.token);

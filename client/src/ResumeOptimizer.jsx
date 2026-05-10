@@ -24,7 +24,7 @@ function ResumeOptimizer() {
     setLoading(true);
     setAiResult(null); 
     try {
-      const res = await axios.post('https://your-backend.onrender.com', formData, {
+      const res = await axios.post('https://smart-job-tracker-w66c.onrender.com', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       // Set the entire JSON object to state
