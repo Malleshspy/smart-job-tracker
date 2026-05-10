@@ -1,0 +1,56 @@
+/* --- RESUME PDF STYLES --- */
+.resume-document {
+  font-family: 'Times New Roman', Times, serif;
+  color: #000;
+  line-height: 1.4;
+}
+
+/* Center the Name */
+.resume-document h1 {
+  text-align: center;
+  font-size: 24pt;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+/* Center the Contact Info (The paragraph right after the Name) */
+.resume-document h1 + p {
+  text-align: center;
+  font-size: 11pt;
+  margin-top: 0;
+  margin-bottom: 15px;
+}
+
+/* Section Headers (e.g., Professional Summary, Projects) */
+.resume-document h2 {
+  font-size: 14pt;
+  text-transform: uppercase;
+  border-bottom: 1px solid #000; /* The classic resume underline */
+  margin-top: 15px;
+  margin-bottom: 8px;
+  padding-bottom: 2px;
+}
+
+/* Job Titles / Project Names */
+.resume-document h3 {
+  font-size: 12pt;
+  margin: 10px 0 5px 0;
+  font-weight: bold;
+}
+
+/* Bullet Points */
+.resume-document ul {
+  padding-left: 25px;
+  margin: 5px 0 15px 0;
+}
+
+.resume-document li {
+  font-size: 11pt;
+  margin-bottom: 4px;
+}
+
+/* General Text */
+.resume-document p {
+  font-size: 11pt;
+  margin-bottom: 8px;
+}
