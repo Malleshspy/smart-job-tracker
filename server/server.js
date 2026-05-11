@@ -172,9 +172,8 @@ app.post('/api/optimize-resume', uploadToMemory.single('resume'), async (req, re
     const pdfData = await PDFParse(req.file.buffer);
     const resumeText = pdfData.text;
 
-    // 2. Initialize Gemini
-    const genAI = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-    const model = genAI.models.get({ model: 'gemini-2.5-flash' }); 
+    // 2. Initialize the NEW Gemini SDK Client
+    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
     // 3. The AI Prompt
     const prompt = `
@@ -192,9 +191,13 @@ app.post('/api/optimize-resume', uploadToMemory.single('resume'), async (req, re
       Resume: ${resumeText}
     `;
 
-    // 4. Call AI and send response
-    const result = await model.generateContent(prompt);
-    let responseText = result.text;
+    // 4. Call AI using the new SDK syntax!
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: prompt
+    });
+    
+    let responseText = response.text;
     
     // Clean up markdown formatting if Gemini adds ```json
     responseText = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
