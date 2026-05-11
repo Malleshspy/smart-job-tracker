@@ -28,7 +28,11 @@ mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('Connected to MongoDB successfully!'))
   .catch((err) => console.error('MongoDB connection error:', err));
 
-app.use(cors());
+app.use(cors({
+    origin: '*', // Or your Vercel URL
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'] // <-- This must be here!
+}));
 app.use(express.json());
 
 // ==========================================
