@@ -21,12 +21,7 @@ const Application = require('./models/Application');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// ==========================================
-// 1. DATABASE & MIDDLEWARE
-// ==========================================
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log('Connected to MongoDB successfully!'))
-  .catch((err) => console.error('MongoDB connection error:', err));
+
 
 app.use(cors({
     origin: '*', // Or your Vercel URL
@@ -212,8 +207,25 @@ app.post('/api/optimize-resume', uploadToMemory.single('resume'), async (req, re
 });
 
 // ==========================================
-// 6. START SERVER
+// START SERVER & DATABASE
 // ==========================================
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-});
+const startServer = async () => {
+  try {
+    // 1. Force the server to wait for MongoDB FIRST
+    // Added serverSelectionTimeoutMS to give Render's free tier time to wake up
+    await mongoose.connect(process.env.MONGO_URI, {
+      serverSelectionTimeoutMS: 30000, 
+    });
+    console.log('Connected to MongoDB successfully!');
+
+    // 2. THEN, and only then, open the doors to web traffic
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+    });
+  } catch (err) {
+    console.error('Failed to connect to MongoDB. Server crashing safely.', err);
+    process.exit(1); // If DB fails, crash the app so Render automatically restarts it
+  }
+};
+
+startServer();
