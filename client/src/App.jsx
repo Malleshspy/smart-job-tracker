@@ -22,14 +22,7 @@ function App() {
     }
   }, [user]);
 
-  const fetchApplications = async () => {
-    try {
-      const res = await axios.get('https://smart-job-tracker-w66c.onrender.com');
-      setApplications(res.data);
-    } catch (err) {
-      console.error('Error fetching data', err);
-    }
-  };
+  
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -39,7 +32,7 @@ function App() {
     setResumeFile(e.target.files[0]);
   };
 
-  const handleSubmit = async (e) => {
+ const handleSubmit = async (e) => {
     e.preventDefault();
     
     const data = new FormData();
@@ -52,21 +45,65 @@ function App() {
     }
 
     try {
-      await axios.post('http://localhost:5000/api/applications', data, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+      await axios.post('https://smart-job-tracker-w66c.onrender.com/api/applications', data, {
+        headers: { 
+          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${user.token}` 
+        }
       });
-      fetchApplications();
-      setFormData({ companyName: '', jobTitle: '', status: 'Applied' });
-      setResumeFile(null); 
-      document.getElementById('resumeFileInput').value = ''; 
-    } catch (err) {
+      // MISSING CODE ADDED BELOW:
+      fetchApplications(); // Refresh the job list!
+      setFormData({ companyName: '', jobTitle: '', status: 'Applied' }); // Clear the form!
+      setResumeFile(null); // Clear the file!
+      document.getElementById('resumeFileInput').value = ''; // Reset the file input visually
+     }
+    catch (err) {
       console.error('Error submitting application', err);
+    }
+  }
+    
+    const data = new FormData();
+    data.append('companyName', formData.companyName);
+    data.append('jobTitle', formData.jobTitle);
+    data.append('status', formData.status);
+    
+    if (resumeFile) {
+      data.append('resumeFile', resumeFile);
+    }
+
+    try {
+      await axios.post('https://smart-job-tracker-w66c.onrender.com/api/applications', data, {
+        headers: { 
+          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${user.token}` // <-- THIS IS THE MISSING MAGIC KEY!
+        }
+      })
+     }
+    catch (err) {
+      console.error('Error submitting application', err);
+    }
+  }
+
+  const fetchApplications = async () => {
+    try {
+      // FIX: Added /api/applications AND the Authorization header
+      const res = await axios.get('https://smart-job-tracker-w66c.onrender.com/api/applications', {
+        headers: { Authorization: `Bearer ${user.token}` }
+      });
+      setApplications(res.data);
+    } catch (err) {
+      console.error('Error fetching data', err);
     }
   };
 
+  // (Your handleSubmit function is perfectly fine as is!)
+
   const deleteApplication = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/applications/${id}`);
+      // FIX: Changed localhost to Render URL AND added Authorization header
+      await axios.delete(`https://smart-job-tracker-w66c.onrender.com/api/applications/${id}`, {
+        headers: { Authorization: `Bearer ${user.token}` }
+      });
       fetchApplications(); 
     } catch (err) {
       console.error('Error deleting application', err);
@@ -75,7 +112,10 @@ function App() {
 
   const updateStatus = async (id, newStatus) => {
     try {
-      await axios.put(`http://localhost:5000/api/applications/${id}`, { status: newStatus });
+      // FIX: Changed localhost to Render URL AND added Authorization header
+      await axios.put(`https://smart-job-tracker-w66c.onrender.com/api/applications/${id}`, { status: newStatus }, {
+        headers: { Authorization: `Bearer ${user.token}` }
+      });
       fetchApplications(); 
     } catch (err) {
       console.error('Error updating status', err);

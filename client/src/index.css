@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* --- STRICT 1-PAGE ATS RESUME STYLES --- */
 .resume-document {
   font-family: 'Times New Roman', Times, serif;

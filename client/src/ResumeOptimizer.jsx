@@ -1,9 +1,12 @@
 // client/src/ResumeOptimizer.jsx
-import { useState, useRef } from 'react';
+import { useState, useRef, useContext } from 'react';
 import axios from 'axios';
+import { AuthContext } from './AuthContext'
 import ReactMarkdown from 'react-markdown';
 
 function ResumeOptimizer() {
+  const { user } = useContext(AuthContext); 
+
   const [file, setFile] = useState(null);
   const [jobDescription, setJobDescription] = useState('');
   const [loading, setLoading] = useState(false);
@@ -24,11 +27,14 @@ function ResumeOptimizer() {
     setLoading(true);
     setAiResult(null); 
     try {
-      const res = await axios.post('https://smart-job-tracker-w66c.onrender.com/api/optimize-resume',formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+      const res = await axios.post('https://smart-job-tracker-w66c.onrender.com/api/optimize-resume', formData, {
+        headers: { 
+          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${user.token}` // <-- THIS WAS MISSING!
+        }
       });
       // Set the entire JSON object to state
-      setAiResult(res.data); 
+      setAiResult(res.data);
     } catch (err) {
       console.error(err);
       alert("Error processing request. Check server logs.");

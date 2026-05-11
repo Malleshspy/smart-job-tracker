@@ -27,32 +27,76 @@ function AuthScreen() {
   };
 
   return (
-    <div style={{ maxWidth: '400px', margin: '100px auto', padding: '30px', background: '#f4f4f4', borderRadius: '8px', fontFamily: 'sans-serif' }}>
-      <h2 style={{ textAlign: 'center' }}>{isLoginView ? 'Welcome Back' : 'Create Account'}</h2>
-      
-      {error && <div style={{ background: '#f8d7da', color: '#721c24', padding: '10px', borderRadius: '4px', marginBottom: '15px' }}>{error}</div>}
-
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-        {!isLoginView && (
-          <input type="text" name="name" placeholder="Full Name" value={formData.name} onChange={handleChange} required style={{ padding: '10px' }} />
-        )}
-        <input type="email" name="email" placeholder="Email Address" value={formData.email} onChange={handleChange} required style={{ padding: '10px' }} />
-        <input type="password" name="password" placeholder="Password" value={formData.password} onChange={handleChange} required style={{ padding: '10px' }} />
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 font-sans">
+      <div className="max-w-md w-full space-y-8 bg-white p-10 rounded-2xl shadow-xl border border-gray-100">
         
-        <button type="submit" style={{ padding: '12px', background: '#007bff', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
-          {isLoginView ? 'Log In' : 'Sign Up'}
-        </button>
-      </form>
+        <div>
+          <h2 className="mt-2 text-center text-3xl font-extrabold text-gray-900 tracking-tight">
+            {isLoginView ? 'Welcome Back' : 'Create Account'}
+          </h2>
+          <p className="mt-2 text-center text-sm text-gray-600">
+            {isLoginView ? 'Sign in to manage your applications' : 'Start tracking your tech career'}
+          </p>
+        </div>
+        
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm font-medium text-center">
+            {error}
+          </div>
+        )}
 
-      <p style={{ textAlign: 'center', marginTop: '20px', fontSize: '14px' }}>
-        {isLoginView ? "Don't have an account? " : "Already have an account? "}
-        <span 
-          onClick={() => setIsLoginView(!isLoginView)} 
-          style={{ color: '#007bff', cursor: 'pointer', fontWeight: 'bold', textDecoration: 'underline' }}
-        >
-          {isLoginView ? 'Sign up' : 'Log in'}
-        </span>
-      </p>
+        <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+          <div className="flex flex-col gap-4">
+            {!isLoginView && (
+              <input 
+                type="text" 
+                name="name" 
+                placeholder="Full Name" 
+                value={formData.name} 
+                onChange={handleChange} 
+                required 
+                className="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all"
+              />
+            )}
+            <input 
+              type="email" 
+              name="email" 
+              placeholder="Email Address" 
+              value={formData.email} 
+              onChange={handleChange} 
+              required 
+              className="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all"
+            />
+            <input 
+              type="password" 
+              name="password" 
+              placeholder="Password" 
+              value={formData.password} 
+              onChange={handleChange} 
+              required 
+              className="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all"
+            />
+          </div>
+
+          <button 
+            type="submit" 
+            className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-bold rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all shadow-md hover:shadow-lg"
+          >
+            {isLoginView ? 'Log In' : 'Sign Up'}
+          </button>
+        </form>
+
+        <p className="mt-4 text-center text-sm text-gray-600">
+          {isLoginView ? "Don't have an account? " : "Already have an account? "}
+          <span 
+            onClick={() => setIsLoginView(!isLoginView)} 
+            className="font-bold text-blue-600 hover:text-blue-500 cursor-pointer hover:underline transition-colors"
+          >
+            {isLoginView ? 'Sign up for free' : 'Log in here'}
+          </span>
+        </p>
+
+      </div>
     </div>
   );
 }
