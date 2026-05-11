@@ -1,28 +1,24 @@
-import { useState, useEffect, useContext } from 'react'; // ADDED useContext here
+import { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import ResumeOptimizer from './ResumeOptimizer';
 import AuthScreen from './AuthScreen'; 
 import { AuthContext } from './AuthContext'; 
 
 function App() {
-  // Pull our user state and logout function from the global context
   const { user, logout } = useContext(AuthContext);
 
   const [applications, setApplications] = useState([]);
   const [formData, setFormData] = useState({ companyName: '', jobTitle: '', status: 'Applied' });
   const [resumeFile, setResumeFile] = useState(null); 
-  // NEW: State for Search and Filter
+  
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('All');
 
-  // We only fetch applications if a user is logged in
   useEffect(() => {
     if (user) {
       fetchApplications();
     }
   }, [user]);
-
-  
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -32,7 +28,7 @@ function App() {
     setResumeFile(e.target.files[0]);
   };
 
- const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     const data = new FormData();
@@ -51,42 +47,18 @@ function App() {
           'Authorization': `Bearer ${user.token}` 
         }
       });
-      // MISSING CODE ADDED BELOW:
-      fetchApplications(); // Refresh the job list!
-      setFormData({ companyName: '', jobTitle: '', status: 'Applied' }); // Clear the form!
-      setResumeFile(null); // Clear the file!
-      document.getElementById('resumeFileInput').value = ''; // Reset the file input visually
+      fetchApplications(); 
+      setFormData({ companyName: '', jobTitle: '', status: 'Applied' }); 
+      setResumeFile(null); 
+      document.getElementById('resumeFileInput').value = ''; 
      }
     catch (err) {
       console.error('Error submitting application', err);
     }
-  }
-    
-    const data = new FormData();
-    data.append('companyName', formData.companyName);
-    data.append('jobTitle', formData.jobTitle);
-    data.append('status', formData.status);
-    
-    if (resumeFile) {
-      data.append('resumeFile', resumeFile);
-    }
-
-    try {
-      await axios.post('https://smart-job-tracker-w66c.onrender.com/api/applications', data, {
-        headers: { 
-          'Content-Type': 'multipart/form-data',
-          'Authorization': `Bearer ${user.token}` // <-- THIS IS THE MISSING MAGIC KEY!
-        }
-      })
-     }
-    catch (err) {
-      console.error('Error submitting application', err);
-    }
-  }
+  }; // <-- Notice how it ends cleanly here now!
 
   const fetchApplications = async () => {
     try {
-      // FIX: Added /api/applications AND the Authorization header
       const res = await axios.get('https://smart-job-tracker-w66c.onrender.com/api/applications', {
         headers: { Authorization: `Bearer ${user.token}` }
       });
@@ -96,11 +68,8 @@ function App() {
     }
   };
 
-  // (Your handleSubmit function is perfectly fine as is!)
-
   const deleteApplication = async (id) => {
     try {
-      // FIX: Changed localhost to Render URL AND added Authorization header
       await axios.delete(`https://smart-job-tracker-w66c.onrender.com/api/applications/${id}`, {
         headers: { Authorization: `Bearer ${user.token}` }
       });
@@ -112,7 +81,6 @@ function App() {
 
   const updateStatus = async (id, newStatus) => {
     try {
-      // FIX: Changed localhost to Render URL AND added Authorization header
       await axios.put(`https://smart-job-tracker-w66c.onrender.com/api/applications/${id}`, { status: newStatus }, {
         headers: { Authorization: `Bearer ${user.token}` }
       });
@@ -123,42 +91,31 @@ function App() {
   };
 
   // ==========================================
-  // NEW: ANALYTICS & FILTERING LOGIC
+  // ANALYTICS & FILTERING LOGIC
   // ==========================================
   
-  // 1. Calculate Analytics
   const totalJobs = applications.length;
   const interviewingCount = applications.filter(app => app.status === 'Interviewing').length;
   const offerCount = applications.filter(app => app.status === 'Offer').length;
 
-  // 2. Filter the Applications
   const filteredApplications = applications.filter(app => {
-    // Check if the search term matches the company name OR job title
     const matchesSearch = 
       app.companyName.toLowerCase().includes(searchTerm.toLowerCase()) || 
       app.jobTitle.toLowerCase().includes(searchTerm.toLowerCase());
     
-    // Check if the status matches the dropdown (or if 'All' is selected)
     const matchesFilter = filterStatus === 'All' || app.status === filterStatus;
 
     return matchesSearch && matchesFilter;
   });
 
-  // IF NO USER IS LOGGED IN, SHOW THE LOGIN SCREEN
+  // <-- Duplicate check removed, only one remains!
   if (!user) {
     return <AuthScreen />;
   }
 
-  // IF NO USER IS LOGGED IN, SHOW THE LOGIN SCREEN
-  if (!user) {
-    return <AuthScreen />;
-  }
-
-  // IF LOGGED IN, SHOW DASHBOARD
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto', padding: '20px', fontFamily: 'sans-serif' }}>
       
-      {/* HEADER WITH LOGOUT BUTTON (Removed the accidental duplicates here) */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <h1>Smart Job Tracker</h1>
         <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
@@ -169,7 +126,6 @@ function App() {
         </div>
       </div>
 
-      {/* --- ADD NEW JOB FORM --- */}
       <div style={{ background: '#f4f4f4', padding: '20px', borderRadius: '8px', marginBottom: '30px' }}>
         <h3>Add New Application</h3>
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
@@ -198,10 +154,9 @@ function App() {
       </div>
 
       <ResumeOptimizer />
-      {/* --- DASHBOARD: ANALYTICS, SEARCH & JOB LIST --- */}
+      
       <div style={{ marginTop: '40px' }}>
         
-        {/* 1. Analytics Stats Bar */}
         <div style={{ display: 'flex', gap: '15px', marginBottom: '20px' }}>
           <div style={{ flex: 1, background: '#fff', padding: '15px', borderRadius: '8px', border: '1px solid #ddd', textAlign: 'center' }}>
             <h2 style={{ margin: '0 0 5px 0', color: '#007bff' }}>{totalJobs}</h2>
@@ -217,7 +172,6 @@ function App() {
           </div>
         </div>
 
-        {/* 2. Search and Filter Controls */}
         <div style={{ display: 'flex', gap: '15px', marginBottom: '20px', background: '#f8f9fa', padding: '15px', borderRadius: '8px' }}>
           <input 
             type="text" 
@@ -240,13 +194,11 @@ function App() {
           </select>
         </div>
 
-        {/* 3. The Filtered Job List */}
         <h3>My Applications</h3>
         {filteredApplications.length === 0 ? (
           <p style={{ textAlign: 'center', color: '#777', padding: '20px' }}>No jobs match your search.</p>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            {/* Notice we are mapping over filteredApplications now! */}
             {filteredApplications.map((app) => (
               <div key={app._id} style={{ border: '1px solid #ddd', padding: '15px', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fff' }}>
                 <div>
@@ -292,7 +244,7 @@ function App() {
         )}
       </div>
 
-      </div>
+    </div>
   );
 }
 
