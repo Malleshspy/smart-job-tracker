@@ -31,13 +31,12 @@ mongoose.connect(process.env.MONGO_URI)
 app.use(cors({
     origin: '*', // Or your Vercel URL
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization'] // <-- This must be here!
+    allowedHeaders: ['Content-Type', 'Authorization'] 
 }));
 app.use(express.json());
 
 // ==========================================
 // 2. MULTER & CLOUDINARY CONFIGURATIONS
-// (This MUST be defined before the routes use them!)
 // ==========================================
 
 // Config A: Memory Storage (For temporary AI parsing)
@@ -113,6 +112,7 @@ app.get('/api/applications', auth, async (req, res) => {
   }
 });
 
+// --> THIS IS THE ROUTE THAT WAS ACCIDENTALLY DELETED! <--
 app.post('/api/applications', auth, uploadToCloud.single('resumeFile'), async (req, res) => {
   try {
     const applicationData = {
@@ -163,10 +163,49 @@ app.delete('/api/applications/:id', auth, async (req, res) => {
 // ==========================================
 
 app.post('/api/optimize-resume', uploadToMemory.single('resume'), async (req, res) => {
-  
-  // *** PASTE YOUR WORKING AI LOGIC HERE ***
-  // (The part with PDFParse, GoogleGenAI, and the Prompt)
+  try {
+    if (!req.file || !req.body.jobDescription) {
+      return res.status(400).json({ error: "Missing resume or job description." });
+    }
 
+    // 1. Parse the PDF
+    const pdfData = await PDFParse(req.file.buffer);
+    const resumeText = pdfData.text;
+
+    // 2. Initialize Gemini
+    const genAI = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+    const model = genAI.models.get({ model: 'gemini-2.5-flash' }); 
+
+    // 3. The AI Prompt
+    const prompt = `
+      You are an expert ATS (Applicant Tracking System).
+      Compare this resume to the job description.
+      Return ONLY a strict JSON object with this exact format:
+      {
+        "matchPercentage": 85,
+        "foundSkills": ["React", "Node.js"],
+        "missingSkills": ["Docker", "AWS"],
+        "optimizedResumeText": "Markdown formatted resume here..."
+      }
+      
+      Job Description: ${req.body.jobDescription}
+      Resume: ${resumeText}
+    `;
+
+    // 4. Call AI and send response
+    const result = await model.generateContent(prompt);
+    let responseText = result.text;
+    
+    // Clean up markdown formatting if Gemini adds ```json
+    responseText = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
+    
+    const parsedData = JSON.parse(responseText);
+    res.status(200).json(parsedData);
+
+  } catch (error) {
+    console.error("AI Error:", error);
+    res.status(500).json({ error: "Failed to optimize resume." });
+  }
 });
 
 // ==========================================
